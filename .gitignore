@@ -1,0 +1,12 @@
+# Directories
+.vs/
+.idea/
+bin/
+obj/
+
+# Files
+*.vcxproj
+*.vcxproj.user
+*.vcxproj.filters
+*.sln
+*.sln.dotsettings
