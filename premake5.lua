@@ -16,7 +16,7 @@ OutputDir = "%{cfg.system}-%{cfg.architecture}/%{cfg.buildcfg}"
 externalproject "DotNetLib"
     location "%{prj.name}"
     language "C#"
-    kind "SharedLib"
+    kind "SharedItems"
 
 project "DotNetCppHost"
     kind "ConsoleApp"

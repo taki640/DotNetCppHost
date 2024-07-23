@@ -6,7 +6,6 @@
 #include <cassert>
 
 #define STR(s) L ## s
-using string_t = std::basic_string<char_t>;
 
 static hostfxr_initialize_for_runtime_config_fn s_InitFunctionPointer;
 static hostfxr_get_runtime_delegate_fn s_GetDelegateFunctionPointer;
@@ -33,7 +32,7 @@ static bool LoadHostFxr()
 	// Find the HostFxr path
 	char_t buffer[MAX_PATH];
 	size_t bufferSize = sizeof(buffer) / sizeof(char_t);
-	// NOTE: If we mannualy search for the path, we don't need to link nethost
+	// NOTE: If we manually search for the path, we don't need to link nethost
 	int result = get_hostfxr_path(buffer, &bufferSize, nullptr);
 	if (result != 0)
 		return false;
