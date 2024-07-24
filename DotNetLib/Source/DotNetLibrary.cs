@@ -11,6 +11,8 @@ public static class DotNetLibrary
         public int Number;
     }
 
+    internal static unsafe delegate*<void> HelloCpp;
+
     public static int EntryPoint(IntPtr args, int argsLength)
     {
         if (argsLength < Marshal.SizeOf(typeof(LibArgs)))
@@ -20,6 +22,24 @@ public static class DotNetLibrary
         Console.WriteLine($"Hello from the C# side!");
         PrintLibArgs(libArgs);
         return 0;
+    }
+
+    public delegate void RegisterNativeFunctionDelegate(IntPtr nativeFunctionPtr);
+    public static void RegisterNativeFunction(IntPtr nativeFunctionPtr)
+    {
+        unsafe
+        {
+            HelloCpp = (delegate*<void>)nativeFunctionPtr;
+        }
+
+        Console.WriteLine($"Registered native function to delegate {nameof(HelloCpp)}");
+    }
+
+    public delegate void SimpleFunctionDelegate();
+    public static void CallHelloCpp()
+    {
+        Console.WriteLine("C#: Here's C#, we're calling Hello Cpp");
+        unsafe { HelloCpp(); }
     }
 
     private static void PrintLibArgs(LibArgs libArgs)

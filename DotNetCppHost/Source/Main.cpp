@@ -69,6 +69,11 @@ static load_assembly_and_get_function_pointer_fn GetDotNetLoadAssembly(const cha
 	return (load_assembly_and_get_function_pointer_fn)loadAssemblyAndGetFunctionPointer;
 }
 
+static void HelloCpp()
+{
+	std::cout << "HelloCpp(): Hi C#\n";
+}
+
 int main()
 {
 	std::cout << "Loading HostFxr...\n";
@@ -90,7 +95,7 @@ int main()
 
 	std::cout << "Loading .NET assembly...\n";
 	const char_t* dotNetLibPath = STR("D:\\dev\\learning\\DotNetCppHost\\DotNetLib\\bin\\Release\\net8.0\\DotNetLib.dll");
-	const char_t* dotNetType = STR("DotNetLib.DotNetLibrary, DotNetLib");
+	const char_t* dotNetType = STR("DotNetLib.DotNetLibrary, DotNetLib"); // <Namespace>.<ClassName>, <AssemblyName>
 	const char_t* dotNetTypeMethod = STR("EntryPoint");
 	component_entry_point_fn entryPointFunction = nullptr;
 	int result = loadAssemblyAndGetFunctionPointer(dotNetLibPath, dotNetType, dotNetTypeMethod, nullptr /*default delegate can be nullptr*/, nullptr, (void**)&entryPointFunction);
@@ -111,6 +116,30 @@ int main()
 	args.Message = STR("Hello from C++! The better side!");
 	args.Number = 69;
 	entryPointFunction(&args, sizeof(args));
+
+	// NOTE: Just for testing, this loads and unloads the assembly again
+	std::cout << "Registering native function...\n";
+	typedef void (* CustomFunction)(void*);
+	CustomFunction registerNativeFunction = nullptr;
+	result = loadAssemblyAndGetFunctionPointer(dotNetLibPath, dotNetType, STR("RegisterNativeFunction"), STR("DotNetLib.DotNetLibrary+RegisterNativeFunctionDelegate, DotNetLib"), nullptr, (void**)&registerNativeFunction);
+	if (result != 0 || registerNativeFunction == nullptr)
+	{
+		std::cerr << "Failed to load RegisterNativeFunction pointer: " << result << "\n";
+		return 1;
+	}
+	registerNativeFunction(&HelloCpp);
+
+	std::cout << "Calling CallCpp...\n";
+	typedef void (*Function)();
+	Function callCpp = nullptr;
+	result = loadAssemblyAndGetFunctionPointer(dotNetLibPath, dotNetType, STR("CallHelloCpp"), STR("DotNetLib.DotNetLibrary+SimpleFunctionDelegate, DotNetLib"), nullptr, (void**)&callCpp);
+	if (result != 0 || callCpp == nullptr)
+	{
+		std::cerr << "Failed to load CallCpp function pointer: " << result << "\n";
+		return 1;
+	}
+
+	callCpp();
 
 	std::cout << "Done!\n.\n.\n.\nDid it work?\n";
 	return 0;
